@@ -3,429 +3,491 @@
 
     PlaylistComponent.cpp
     Created: 23 Feb 2024 11:01:05pm
-    Author:  Bright  Osahenhen Iyahen
+    Author:  Bright Osahenhen Iyahen
 
   ==============================================================================
 */
 
-//#include <JuceHeader.h>
 #include "PlaylistComponent.h"
 
-
-
 //==============================================================================
-PlaylistComponent::PlaylistComponent(juce::AudioFormatManager& _formatManager, DJAudioPlayer* _player1, DJAudioPlayer* _player2, DJAudioPlayer* _player3): formatManager(_formatManager), player1{_player1}, player2{_player2}, player3{_player3}
+PlaylistComponent::PlaylistComponent(
+    juce::AudioFormatManager& _formatManager,
+    DJAudioPlayer* _player1,
+    DJAudioPlayer* _player2,
+    DJAudioPlayer* _player3)
+    : formatManager(_formatManager),
+      player1(_player1),
+      player2(_player2),
+      player3(_player3)
 {
-    
-    /**Makes the PlaylistComponent visible**/
+    setupTable();
+
     addAndMakeVisible(tableComponent);
-    
-    /**Label the PlaylistComponent accordingly**/
-    tableComponent.getHeader().addColumn("Track Title",1, 250);
-    tableComponent.getHeader().addColumn("Length", 2, 100);
-    tableComponent.getHeader().addColumn("", 3, 100);
-    tableComponent.getHeader().addColumn("", 4, 100);
-    tableComponent.getHeader().addColumn("", 5, 100);
-    tableComponent.getHeader().addColumn("", 6, 100);
-    
-    /**Creats a table components for the PlaylistComponent**/
-    tableComponent.setModel(this);
-    
- 
 }
 
 PlaylistComponent::~PlaylistComponent()
 {
-    /**Destroys the table components  when the app exits**/
-    tableComponent.setModel (nullptr);
-    
+    tableComponent.setModel(nullptr);
 }
 
-void PlaylistComponent::prepareToPlay(int samplesPerBlockExpected, double sampleRate){}
+//==============================================================================
+// Component
 
-void PlaylistComponent::getNextAudioBlock(const juce::AudioSourceChannelInfo& bufferToFill){}
-
-void PlaylistComponent::releaseResources()
-{ 
-    transportSource.releaseResources();
-}
-
-
-void PlaylistComponent::paint (juce::Graphics& g)
+void PlaylistComponent::paint(juce::Graphics& g)
 {
-   
+    g.fillAll(juce::Colour(20, 20, 20));
 
-    g.fillAll (getLookAndFeel().findColour (juce::ResizableWindow::backgroundColourId));   // clear the background
+    g.setColour(juce::Colours::grey);
+    g.drawRect(getLocalBounds(), 1);
 
-    
-   
-    
-    g.setColour (juce::Colours::grey);
-    g.drawRect (getLocalBounds(), 1);   // draw an outline around the component
+    g.setColour(juce::Colours::white);
+    g.setFont(18.0f);
 
-    g.setColour (juce::Colours::white);
-    g.setFont (14.0f);
-    g.drawText ("PlaylistComponent", getLocalBounds(),
-                juce::Justification::centred, true);   // draw some placeholder text
+    g.drawText(
+        "PLAYLIST",
+        10,
+        5,
+        getWidth(),
+        30,
+        juce::Justification::centredLeft
+    );
 }
 
 void PlaylistComponent::resized()
 {
-
-    
-    /**Positios and resizes the PlaylistComponent**/
-    double rowH = getHeight() / 8;
-   tableComponent.setBounds(0, rowH, getWidth(), rowH*7);
-  
+    tableComponent.setBounds(
+        10,
+        40,
+        getWidth() - 20,
+        getHeight() - 50
+    );
 }
+
+//==============================================================================
+// Table Setup
+
+void PlaylistComponent::setupTable()
+{
+    tableComponent.getHeader().addColumn("Track", 1, 300);
+    tableComponent.getHeader().addColumn("Length", 2, 120);
+    tableComponent.getHeader().addColumn("Left Deck", 3, 120);
+    tableComponent.getHeader().addColumn("Middle Deck", 4, 120);
+    tableComponent.getHeader().addColumn("Right Deck", 5, 120);
+    tableComponent.getHeader().addColumn("Remove", 6, 80);
+
+    tableComponent.setModel(this);
+
+    tableComponent.setColour(
+        juce::ListBox::backgroundColourId,
+        juce::Colours::black
+    );
+
+    tableComponent.getHeader().setColour(
+        juce::TableHeaderComponent::backgroundColourId,
+        juce::Colours::darkslategrey
+    );
+
+    tableComponent.getHeader().setColour(
+        juce::TableHeaderComponent::textColourId,
+        juce::Colours::white
+    );
+}
+
+//==============================================================================
+// TableListBoxModel
 
 int PlaylistComponent::getNumRows()
 {
-   /**Return the full length of the sound file**/
-    return static_cast<int>( fullFilesStore.size()) ;
-    
+    return static_cast<int>(tracks.size());
 }
 
-void PlaylistComponent::paintRowBackground(juce::Graphics& g, int rowNumber, int width, int height, bool rowIsSelected)
+void PlaylistComponent::paintRowBackground(
+    juce::Graphics& g,
+    int rowNumber,
+    int width,
+    int height,
+    bool rowIsSelected)
 {
-    /**Paints the background of the playlistComponent when a playlsit row ls selected, alternets with coral colour else  colours white**/
-    
-    if (rowIsSelected) {
-        g.fillAll(juce::Colours::aqua);
+    if (rowIsSelected)
+    {
+        g.fillAll(juce::Colours::darkcyan);
     }
-    else if (rowNumber % 2)
-         g.fillAll (juce::Colours::coral);
-
-    
-    
-    else{
-        g.fillAll(juce::Colours::white);
+    else if (rowNumber % 2 == 0)
+    {
+        g.fillAll(juce::Colour(30, 30, 30));
     }
-     
+    else
+    {
+        g.fillAll(juce::Colour(45, 45, 45));
+    }
 }
 
-void PlaylistComponent::paintCell(juce::Graphics& g, int rowNumber, int columnId, int width, int height, bool rowIsSelected)
+void PlaylistComponent::paintCell(
+    juce::Graphics& g,
+    int rowNumber,
+    int columnId,
+    int width,
+    int height,
+    bool rowIsSelected)
 {
-   
-    
-   
-    
-    /**Draw the track full fill name to first column**/
-        if (columnId == 1)
-        {
-            g.drawText(fullFilesStore[rowNumber],
-                       1, rowNumber,
-                       width - 4, height,
-                       juce::Justification::centredLeft,
-                       true);
-         
-        }
-        /**Draw the duration of the track to the second column**/
-        if (columnId == 2)
-        {
-            g.drawText(std::to_string(fileLengthStore[rowNumber]) + "s",
-                       1, rowNumber,
-                       width - 4, height,
-                       juce::Justification::centredLeft,
-                       true);
-            
-           
-                       
-        }
-        
-   
+    if (!isValidRow(rowNumber))
+        return;
 
+    g.setColour(juce::Colours::white);
+    g.setFont(14.0f);
+
+    const auto& track = tracks[rowNumber];
+
+    //==============================================================================
+    // Track Title
+
+    if (columnId == 1)
+    {
+        g.drawText(
+            track.title,
+            8,
+            0,
+            width - 10,
+            height,
+            juce::Justification::centredLeft,
+            true
+        );
+    }
+
+    //==============================================================================
+    // Track Duration
+
+    else if (columnId == 2)
+    {
+        g.drawText(
+            formatTime(track.duration),
+            0,
+            0,
+            width,
+            height,
+            juce::Justification::centred,
+            true
+        );
+    }
 }
 
- juce::Component * PlaylistComponent:: refreshComponentForCell(int rowNumber, int columnId, bool isRowSelected, juce::Component *existingComponentToUpdate)
+//==============================================================================
+juce::Component* PlaylistComponent::refreshComponentForCell(
+    int rowNumber,
+    int columnId,
+    bool isRowSelected,
+    juce::Component* existingComponentToUpdate)
+{
+    juce::ignoreUnused(isRowSelected);
+
+    //==============================================================================
+    // LEFT DECK
+
+    if (columnId == 3)
     {
-    
-    /**Creates a text button programmatically  in the third column when a sound file is dropped on the PlaylistComponent**/
-        if (columnId == 3)
+        if (existingComponentToUpdate == nullptr)
         {
-            if (existingComponentToUpdate == nullptr)
-            {
-               
-                juce::TextButton* textButton = new juce::TextButton{ "Add to LDeck" };
-                
-                juce::String id{ std::to_string(rowNumber) };
-                
-                textButton->setComponentID(id);
-                textButton->addListener(this);
-                
-                existingComponentToUpdate = textButton;
-                textButton->setColour(juce::TextButton::buttonColourId, juce::Colours::coral);
-                
-                
-             
-               
-                
-            }
-           
-         
-            
-            
+            auto* button = new juce::TextButton("Load");
+
+            button->setComponentID(
+                "L_" + juce::String(rowNumber));
+
+            button->addListener(this);
+
+            button->setColour(
+                juce::TextButton::buttonColourId,
+                juce::Colours::orange);
+
+            existingComponentToUpdate = button;
         }
-        
-        
-        
-    /**Creates a text button programmatically  in the fourth column when a sound file is dropped on the PlaylistComponent**/
-        if (columnId == 4)
-        {
-            if (existingComponentToUpdate == nullptr)
-            {
-                
-                juce::TextButton* textButton = new juce::TextButton{ "Add to  MDeck" };
-               
-                juce::String id{ std::to_string(rowNumber) };
-                
-                
-                textButton->setComponentID(id);
-                textButton->addListener(this);
-              
-                existingComponentToUpdate = textButton;
-                textButton->setColour(juce::TextButton::buttonColourId, juce::Colours::blue);
-                
-                
-              }
-        }
-        
-    
-    /**Creates a text button programmatically  in the fifth column when a sound file is dropped on the PlaylistComponent**/
-        
-        if (columnId == 5)
-        {
-            if (existingComponentToUpdate == nullptr)
-            {
-                
-                juce::TextButton* textButton = new juce::TextButton{ "Add to Rdeck" };
-              
-                juce::String id{ std::to_string(rowNumber) };
-                
-                textButton->setComponentID(id);
-                textButton->addListener(this);
-                existingComponentToUpdate = textButton;
-                textButton->setColour(juce::TextButton::buttonColourId, juce::Colours::darkgrey);
-              
-                
-                
-                jassert (existingComponentToUpdate != nullptr);
-             
-                
-            }
-            
-           
-            
-            
-        }
-    
-    /**Creates a delete  text button programmatically  in the sixth column when a sound file is dropped on the PlaylistComponent**/
-    
-    if (columnId==6)
-        {
-            if (existingComponentToUpdate == nullptr)
-            {
-                juce::TextButton* textButton = new juce::TextButton{ "X" };
-                juce::String id{ std::to_string(rowNumber + 200) };
-                textButton->setComponentID(id);
-               
-                textButton->addListener(this);
-                existingComponentToUpdate = textButton;
-                textButton->setColour(juce::TextButton::buttonColourId, juce::Colours::red);
-               
-                
-                
-            }
-            
-            
-        }
-        
-        
-   
-        
-        return existingComponentToUpdate;
-    
-    
-    
     }
-        
-    
-    
 
-    
-   /** Add track file to each of the respective Left, Middle and Right  Decks**/
-void PlaylistComponent::loadTrackToDeck(std::string useFilePath, int useDeck)
+    //==============================================================================
+    // MIDDLE DECK
+
+    else if (columnId == 4)
     {
-        
-       
-            
-            if (useDeck == 0  )
-            {
-                leftStore.push_back(useFilePath);
-           
-               
-              
-            }
-            if (useDeck == 1 )
-            {
-                midStore.push_back(useFilePath);
-                
-           
-                
-            }
-            if (useDeck == 2 )
-            {
-                rightStore.push_back(useFilePath);
-                
-           
-                
-            }
-                 
-                 
-   
-        }
-    
+        if (existingComponentToUpdate == nullptr)
+        {
+            auto* button = new juce::TextButton("Load");
 
+            button->setComponentID(
+                "M_" + juce::String(rowNumber));
+
+            button->addListener(this);
+
+            button->setColour(
+                juce::TextButton::buttonColourId,
+                juce::Colours::deepskyblue);
+
+            existingComponentToUpdate = button;
+        }
+    }
+
+    //==============================================================================
+    // RIGHT DECK
+
+    else if (columnId == 5)
+    {
+        if (existingComponentToUpdate == nullptr)
+        {
+            auto* button = new juce::TextButton("Load");
+
+            button->setComponentID(
+                "R_" + juce::String(rowNumber));
+
+            button->addListener(this);
+
+            button->setColour(
+                juce::TextButton::buttonColourId,
+                juce::Colours::mediumseagreen);
+
+            existingComponentToUpdate = button;
+        }
+    }
+
+    //==============================================================================
+    // DELETE BUTTON
+
+    else if (columnId == 6)
+    {
+        if (existingComponentToUpdate == nullptr)
+        {
+            auto* button = new juce::TextButton("X");
+
+            button->setComponentID(
+                "D_" + juce::String(rowNumber));
+
+            button->addListener(this);
+
+            button->setColour(
+                juce::TextButton::buttonColourId,
+                juce::Colours::red);
+
+            existingComponentToUpdate = button;
+        }
+    }
+
+    return existingComponentToUpdate;
+}
+
+//==============================================================================
+// Button Listener
 
 void PlaylistComponent::buttonClicked(juce::Button* button)
 {
-    
-    /**Creates a button id**/
-    int btnId = std::stoi(button->getComponentID().toStdString());
-    
-    
-    /**Loads a track to the  Left Deck**/
-    if ((refreshComponentForCell(0, 3, false, button)))
+    auto id = button->getComponentID();
+
+    if (id.isEmpty())
+        return;
+
+    auto parts =
+        juce::StringArray::fromTokens(id, "_", "");
+
+    if (parts.size() != 2)
+        return;
+
+    auto command = parts[0];
+
+    int row = parts[1].getIntValue();
+
+    if (!isValidRow(row))
+        return;
+
+    auto filePath = tracks[row].filePath;
+
+    //==============================================================================
+    // LEFT DECK
+
+    if (command == "L")
     {
-        
-        
-        loadTrackToDeck(filesStore[btnId], 0);
-        
+        loadTrackToDeck(filePath, 0);
     }
-    
-    /**Loads a track to the  Middle Deck**/
-    
-    if((refreshComponentForCell(0, 4, false, button)))
+
+    //==============================================================================
+    // MIDDLE DECK
+
+    else if (command == "M")
     {
-        loadTrackToDeck(filesStore[btnId], 1);
-        
+        loadTrackToDeck(filePath, 1);
     }
-    
-    
-    
-    
-    /**Loads a track to the  Right Deck**/
-    if((refreshComponentForCell(0, 5, false, button)))
+
+    //==============================================================================
+    // RIGHT DECK
+
+    else if (command == "R")
     {
-        loadTrackToDeck(filesStore[btnId], 2);
-        
+        loadTrackToDeck(filePath, 2);
     }
-    
-    
-    
-    /**Deletes track from the PlaylistComponent**/
-    if(btnId>=200)
-    
+
+    //==============================================================================
+    // DELETE
+
+    else if (command == "D")
     {
-        fullFilesStore.erase(fullFilesStore.begin());
-        tableComponent.updateContent();
+        removeTrack(row);
     }
-    
-    
-    
 }
 
-bool PlaylistComponent::isInterestedInFileDrag(const juce::StringArray& files)
+//==============================================================================
+// AudioSource
+
+void PlaylistComponent::prepareToPlay(
+    int samplesPerBlockExpected,
+    double sampleRate)
 {
-    return true; // allows files to be dragged and dropped
+    juce::ignoreUnused(samplesPerBlockExpected);
+    juce::ignoreUnused(sampleRate);
 }
 
-
-
-std::string PlaylistComponent::getFilePath(const juce::String &fromFilename) 
+void PlaylistComponent::getNextAudioBlock(
+    const juce::AudioSourceChannelInfo& bufferToFill)
 {
-    /**Returns the file path of the track file**/
-    return  juce::String(fromFilename).toStdString();
+    juce::ignoreUnused(bufferToFill);
 }
 
-std::size_t PlaylistComponent::getSlashInFile(const juce::String &fromFilename) 
+void PlaylistComponent::releaseResources()
 {
-    /**Returns  slash  from  the track file**/
-    return getFilePath(fromFilename).find_last_of("\\");
+    transportSource.releaseResources();
 }
 
-std::size_t PlaylistComponent::getDotInFile(const juce::String &fromFilename) 
+//==============================================================================
+// Drag & Drop
+
+bool PlaylistComponent::isInterestedInFileDrag(
+    const juce::StringArray& files)
 {
-    /**Returns dot from  the track file**/
-    return getFilePath(fromFilename).find_last_of(".");
+    juce::ignoreUnused(files);
+
+    return true;
 }
 
-std::string PlaylistComponent::getDotExtension(const juce::String &fromFilename) 
+void PlaylistComponent::filesDropped(
+    const juce::StringArray& files,
+    int x,
+    int y)
 {
-    /**Returns any other  dot  extension from the track file**/
-    return getFilePath(fromFilename).substr(getDotInFile(fromFilename) + 1, getFilePath(fromFilename).length() - getDotInFile(fromFilename));
-}
+    juce::ignoreUnused(x);
+    juce::ignoreUnused(y);
 
-std::string PlaylistComponent::getFileFullPath(const juce::String &fromFilename) 
-{
-    /**Returns the file ful path of the track file**/
-    return getFilePath(fromFilename).substr(getSlashInFile(fromFilename) + 1, getFilePath(fromFilename).length() - getSlashInFile(fromFilename) - getDotExtension(fromFilename).size() - 2);
-}
-
-void PlaylistComponent::filesDropped(const juce::StringArray& files, int x, int y)
-{
-    //perform if files have been dropped (mouse released with files)
-    for (juce::String fromFilename : files)
+    for (const auto& file : files)
     {
-       
-        /** Store track files into vectors*/
-        filesStore.push_back(getFilePath(fromFilename));
-        fullFilesStore.push_back(getFileFullPath(fromFilename));
-       
-        /**Loads file track into the  Decks when the loadTrack button is pressed**/
-        loadAudioFile(juce::URL{juce::File{getFilePath(fromFilename)} });
-       
+        addTrack(juce::File(file));
     }
-   
 
-    /**Updates the playlistComponent to include added track files**/
     tableComponent.updateContent();
-   
-   
-    
+    repaint();
 }
 
+//==============================================================================
+// Playlist Logic
 
-
-
-
-double PlaylistComponent::extractFileLengthInSeconds() 
+void PlaylistComponent::loadTrackToDeck(
+    const std::string& filePath,
+    int deckIndex)
 {
-    /**Returns the file length in seconds**/
+    if (deckIndex == 0)
+    {
+        leftStore.push_back(filePath);
+    }
+    else if (deckIndex == 1)
+    {
+        midStore.push_back(filePath);
+    }
+    else if (deckIndex == 2)
+    {
+        rightStore.push_back(filePath);
+    }
+}
+
+void PlaylistComponent::addTrack(const juce::File& file)
+{
+    if (!file.existsAsFile())
+        return;
+
+    TrackInfo track;
+
+    track.filePath =
+        file.getFullPathName().toStdString();
+
+    track.title =
+        file.getFileNameWithoutExtension().toStdString();
+
+    if (auto* reader =
+        formatManager.createReaderFor(file))
+    {
+        track.duration =
+            reader->lengthInSamples
+            / reader->sampleRate;
+
+        delete reader;
+    }
+
+    tracks.push_back(track);
+}
+
+void PlaylistComponent::removeTrack(int index)
+{
+    if (!isValidRow(index))
+        return;
+
+    tracks.erase(tracks.begin() + index);
+
+    tableComponent.updateContent();
+    repaint();
+}
+
+bool PlaylistComponent::isValidRow(int row) const
+{
+    return row >= 0
+        && row < static_cast<int>(tracks.size());
+}
+
+//==============================================================================
+// Audio File Helpers
+
+void PlaylistComponent::loadAudioFile(
+    const juce::URL& audioURL)
+{
+    juce::ignoreUnused(audioURL);
+}
+
+double PlaylistComponent::extractFileLengthInSeconds() const
+{
     return transportSource.getLengthInSeconds();
 }
 
+//==============================================================================
+// File Helpers
 
-void PlaylistComponent::loadAudioFile(juce::URL fromAudioURL)
+std::string PlaylistComponent::getFilePath(
+    const juce::String& fromFilename)
 {
-   
-    
-    /**Reads and stores the audio track file**/
-    auto* audioReader = formatManager.createReaderFor(fromAudioURL.createInputStream(juce::URL::InputStreamOptions(juce::URL::ParameterHandling::inAddress).withConnectionTimeoutMs(1000).withNumRedirectsToFollow(0)));
+    return fromFilename.toStdString();
+}
 
-    /** A successfully read the audio file then stores it  to the  fileLengthStore vector*/
-    if (audioReader != nullptr) // good file!
-    {
-        std::unique_ptr<juce::AudioFormatReaderSource> newSource(new juce::AudioFormatReaderSource(audioReader,
-            true));
-        transportSource.setSource(newSource.get(), 0, nullptr, audioReader->sampleRate);
-        readerSource.reset(newSource.release());
-         // get length of audio
-        fileLengthStore.push_back(extractFileLengthInSeconds()); // add audio length to vector
-    }
+std::string PlaylistComponent::getFileNameWithoutExtension(
+    const juce::String& fromFilename)
+{
+    return juce::File(fromFilename)
+        .getFileNameWithoutExtension()
+        .toStdString();
+}
 
-   
-    
-    
-   
+//==============================================================================
+// Time Formatting
+
+juce::String PlaylistComponent::formatTime(
+    double seconds) const
+{
+    int mins = static_cast<int>(seconds) / 60;
+
+    int secs = static_cast<int>(seconds) % 60;
+
+    return juce::String::formatted(
+        "%02d:%02d",
+        mins,
+        secs
+    );
 }

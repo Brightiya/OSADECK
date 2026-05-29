@@ -1,7 +1,8 @@
 /*
   ==============================================================================
 
-    This file contains the basic startup code for a JUCE application.
+    Main.cpp
+    Professional JUCE Application Entry Point
 
   ==============================================================================
 */
@@ -10,96 +11,128 @@
 #include "MainComponent.h"
 
 //==============================================================================
-class AudioProj3Application  : public juce::JUCEApplication
+class OSADeckApplication : public juce::JUCEApplication
 {
 public:
     //==============================================================================
-    AudioProj3Application() {}
-
-    const juce::String getApplicationName() override       { return ProjectInfo::projectName; }
-    const juce::String getApplicationVersion() override    { return ProjectInfo::versionString; }
-    bool moreThanOneInstanceAllowed() override             { return true; }
+    OSADeckApplication() = default;
 
     //==============================================================================
-    void initialise (const juce::String& commandLine) override
+    const juce::String getApplicationName() override
     {
-        // This method is where you should put your application's initialisation code..
+        return "OSADECK";
+    }
 
-        mainWindow.reset (new MainWindow (getApplicationName()));
+    const juce::String getApplicationVersion() override
+    {
+        return "2.0.0";
+    }
+
+    bool moreThanOneInstanceAllowed() override
+    {
+        return false;
+    }
+
+    //==============================================================================
+    void initialise(const juce::String& commandLine) override
+    {
+        juce::ignoreUnused(commandLine);
+
+        initialiseLookAndFeel();
+
+        mainWindow = std::make_unique<MainWindow>(getApplicationName());
     }
 
     void shutdown() override
     {
-        // Add your application's shutdown code here..
-
-        mainWindow = nullptr; // (deletes our window)
+        mainWindow.reset();
     }
 
     //==============================================================================
     void systemRequestedQuit() override
     {
-        // This is called when the app is being asked to quit: you can ignore this
-        // request and let the app carry on running, or call quit() to allow the app to close.
         quit();
     }
 
-    void anotherInstanceStarted (const juce::String& commandLine) override
+    void anotherInstanceStarted(const juce::String& commandLine) override
     {
-        // When another instance of the app is launched while this one is running,
-        // this method is invoked, and the commandLine parameter tells you what
-        // the other instance's command-line arguments were.
+        juce::ignoreUnused(commandLine);
+    }
+
+private:
+    //==============================================================================
+    void initialiseLookAndFeel()
+    {
+        auto& lookAndFeel = juce::LookAndFeel::getDefaultLookAndFeel();
+
+        lookAndFeel.setColour(
+            juce::ResizableWindow::backgroundColourId,
+            juce::Colour(18, 18, 18));
+
+        lookAndFeel.setColour(
+            juce::TextButton::buttonColourId,
+            juce::Colour(40, 40, 40));
+
+        lookAndFeel.setColour(
+            juce::TextButton::textColourOffId,
+            juce::Colours::white);
+
+        lookAndFeel.setColour(
+            juce::Slider::thumbColourId,
+            juce::Colours::deepskyblue);
+
+        lookAndFeel.setColour(
+            juce::Slider::rotarySliderFillColourId,
+            juce::Colours::deepskyblue);
+
+        lookAndFeel.setColour(
+            juce::Label::textColourId,
+            juce::Colours::white);
     }
 
     //==============================================================================
-    /*
-        This class implements the desktop window that contains an instance of
-        our MainComponent class.
-    */
-    class MainWindow    : public juce::DocumentWindow
+    class MainWindow : public juce::DocumentWindow
     {
     public:
-        MainWindow (juce::String name)
-            : DocumentWindow (name,
-                              juce::Desktop::getInstance().getDefaultLookAndFeel()
-                                                          .findColour (juce::ResizableWindow::backgroundColourId),
-                              DocumentWindow::allButtons)
+        explicit MainWindow(juce::String name)
+            : juce::DocumentWindow(
+                  name,
+                  juce::Colour(15, 15, 15),
+                  juce::DocumentWindow::allButtons)
         {
-            setUsingNativeTitleBar (true);
-            setContentOwned (new MainComponent(), true);
+            setUsingNativeTitleBar(true);
+
+            setContentOwned(new MainComponent(), true);
 
            #if JUCE_IOS || JUCE_ANDROID
-            setFullScreen (true);
+                setFullScreen(true);
            #else
-            setResizable (true, true);
-            centreWithSize (getWidth(), getHeight());
+                setResizable(true, true);
+
+                setResizeLimits(1000, 700, 1920, 1080);
+
+                centreWithSize(1400, 850);
            #endif
 
-            setVisible (true);
+            setVisible(true);
         }
 
+        //==============================================================================
         void closeButtonPressed() override
         {
-            // This is called when the user tries to close this window. Here, we'll just
-            // ask the app to quit when this happens, but you can change this to do
-            // whatever you need.
-            JUCEApplication::getInstance()->systemRequestedQuit();
+            juce::JUCEApplication::getInstance()->systemRequestedQuit();
         }
 
-        /* Note: Be careful if you override any DocumentWindow methods - the base
-           class uses a lot of them, so by overriding you might break its functionality.
-           It's best to do all your work in your content component instead, but if
-           you really have to override any DocumentWindow methods, make sure your
-           subclass also calls the superclass's method.
-        */
-
     private:
-        JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainWindow)
+        JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MainWindow)
     };
 
-private:
+    //==============================================================================
     std::unique_ptr<MainWindow> mainWindow;
+
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(OSADeckApplication)
 };
 
 //==============================================================================
-// This macro generates the main() routine that launches the app.
-START_JUCE_APPLICATION (AudioProj3Application)
+// Launch Application
+START_JUCE_APPLICATION(OSADeckApplication)

@@ -3,15 +3,24 @@
 
     TrackList.cpp
     Created: 1 Mar 2024 12:31:35pm
-    Author:  Bright  Osahenhen Iyahen
+    Author:  Bright Osahenhen Iyahen
 
   ==============================================================================
 */
 
 #include "TrackList.h"
-#include <filesystem>
 
-TrackList::TrackList(juce::File getFile):trackFile(getFile),getURL(juce::URL{ getFile }),
-trackTitle(getFile.getFileNameWithoutExtension()){}
+#include <utility>
 
-
+//==============================================================================
+TrackList::TrackList(juce::File file)
+    : trackFile(std::move(file)),
+      getURL(trackFile),
+      trackTitle(trackFile.getFileNameWithoutExtension())
+{
+    // Ensure track title is never empty
+    if (trackTitle.trim().isEmpty())
+    {
+        trackTitle = "Unknown Track";
+    }
+}

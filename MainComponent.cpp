@@ -2,133 +2,203 @@
 
 //==============================================================================
 MainComponent::MainComponent()
+: playlistComponent(formatManager, &player1, &player2, &player3),
+deckGUI1(&player1, formatManager, waveformCache, &playlistComponent, 0),
+deckGUI2(&player2, formatManager, waveformCache, &playlistComponent, 1),
+deckGUI3(&player3, formatManager, waveformCache, &playlistComponent, 2)
 {
-    setSize (1290, 870);
-   
-   
+    setSize(1500, 1050);
 
-    // Some platforms require permissions to open input channels so request that here
-    if (juce::RuntimePermissions::isRequired (juce::RuntimePermissions::recordAudio)
-        && ! juce::RuntimePermissions::isGranted (juce::RuntimePermissions::recordAudio))
+    //==============================================================================
+    // Audio permissions
+    if (juce::RuntimePermissions::isRequired(juce::RuntimePermissions::recordAudio)
+        && !juce::RuntimePermissions::isGranted(juce::RuntimePermissions::recordAudio))
     {
-        juce::RuntimePermissions::request (juce::RuntimePermissions::recordAudio,
-                                           [&] (bool granted) { setAudioChannels (granted ? 2 : 0, 2); });
+        juce::RuntimePermissions::request(
+            juce::RuntimePermissions::recordAudio,
+            [this](bool granted)
+            {
+                setAudioChannels(granted ? 2 : 0, 2);
+            });
     }
     else
     {
-        // Specify the number of input and output channels that we want to open
-        setAudioChannels (2, 2);
+        setAudioChannels(2, 2);
     }
-    
-    
-   
-   
-    /**Make visible the components**/
+
+    //==============================================================================
+    // Register audio formats
+    formatManager.registerBasicFormats();
+
+    //==============================================================================
+    // Visible Components
     addAndMakeVisible(deckGUI1);
     addAndMakeVisible(deckGUI2);
     addAndMakeVisible(deckGUI3);
     addAndMakeVisible(playlistComponent);
-    addAndMakeVisible(labelPlaylist);
-    addAndMakeVisible(labelGUI);
-    
-    
-   /**Attaches text on the side of the playlistComponent**/
-    labelPlaylist.setFont (18.0f);
-    labelPlaylist.setText("Drag and drop files here>>>>>>>>>>", juce::dontSendNotification);
-    
-    labelPlaylist.setColour(juce::Label::textColourId, juce::Colours::white);
-    labelPlaylist.setJustificationType(juce::Justification::centred);
-    
-    /**Attaches text on the Deck GUI**/
-    labelGUI.setFont (18.0f);
-    labelGUI.setText("Drag and drop files...", juce::dontSendNotification);
-    
-    labelGUI.setColour(juce::Label::textColourId, juce::Colours::white);
-    labelGUI.setJustificationType(juce::Justification::centred);
-    
- 
-    
-    
-    formatManager.registerBasicFormats();
-    
-    
-    
-    
+
+    addAndMakeVisible(titleLabel);
+    addAndMakeVisible(subTitleLabel);
+
+    //==============================================================================
+    // Title Label
+    titleLabel.setText("OSADECK PRO", juce::dontSendNotification);
+    titleLabel.setFont(juce::Font(32.0f, juce::Font::bold));
+    titleLabel.setJustificationType(juce::Justification::centred);
+    titleLabel.setColour(juce::Label::textColourId, juce::Colours::white);
+
+    //==============================================================================
+    // Subtitle Label
+    subTitleLabel.setText("Professional Multi-Deck DJ Mixing Console",
+                          juce::dontSendNotification);
+
+    subTitleLabel.setFont(juce::Font(16.0f));
+    subTitleLabel.setJustificationType(juce::Justification::centred);
+    subTitleLabel.setColour(juce::Label::textColourId,
+                            juce::Colours::lightgrey);
+
+    //==============================================================================
+    // Background
+    setOpaque(true);
 }
 
 MainComponent::~MainComponent()
-
 {
     deviceManager.removeAllChangeListeners();
-    // This shuts down the audio device and clears the audio source.
+
     shutdownAudio();
 }
 
 //==============================================================================
-void MainComponent::prepareToPlay (int samplesPerBlockExpected, double sampleRate)
+void MainComponent::prepareToPlay(int samplesPerBlockExpected,
+                                  double sampleRate)
 {
-   
-   
-  /**Prepares each Deck to play sound tracks**/
     mixerSource.prepareToPlay(samplesPerBlockExpected, sampleRate);
+
     mixerSource.addInputSource(&player1, false);
     mixerSource.addInputSource(&player2, false);
     mixerSource.addInputSource(&player3, false);
-  
 }
 
-
-
-
-void MainComponent::getNextAudioBlock (const juce::AudioSourceChannelInfo& bufferToFill)
+//==============================================================================
+void MainComponent::getNextAudioBlock(
+    const juce::AudioSourceChannelInfo& bufferToFill)
 {
-    /**Get the next audio sample and distribute them to each Deck**/
-  mixerSource.getNextAudioBlock(bufferToFill);
+    mixerSource.getNextAudioBlock(bufferToFill);
 }
 
+//==============================================================================
 void MainComponent::releaseResources()
 {
-     
-
-  /**This will be called when the audio device stops, or when it is being
-   restarted due to a setting change*/
     player1.releaseResources();
     player2.releaseResources();
     player3.releaseResources();
+
     mixerSource.releaseResources();
 }
 
 //==============================================================================
-void MainComponent::paint (juce::Graphics& g)
+void MainComponent::paint(juce::Graphics& g)
 {
-    // (Our component is opaque, so we must completely fill the background with a solid colour)
-    
-    g.fillAll (getLookAndFeel().findColour (juce::ResizableWindow::backgroundColourId));
-    
-    g.setFont (20.0f);
-    //g.setColour({255, 0,0});
-    
-    
-   
-   
-                      
+    auto bounds = getLocalBounds().toFloat();
+
+    //==============================================================================
+    // Main background gradient
+    juce::ColourGradient backgroundGradient(
+        juce::Colour(18, 18, 24),
+        0,
+        0,
+        juce::Colour(32, 32, 44),
+        0,
+        static_cast<float>(getHeight()),
+        false);
+
+    g.setGradientFill(backgroundGradient);
+    g.fillAll();
+
+    //==============================================================================
+    // Top banner
+    g.setColour(juce::Colour(25, 25, 35));
+    g.fillRoundedRectangle(bounds.removeFromTop(80.0f).reduced(10.0f), 15.0f);
+
+    //==============================================================================
+    // Playlist area background
+    auto playlistArea = juce::Rectangle<float>(
+        10.0f,
+        static_cast<float>(getHeight() / 2) + 10.0f,
+        static_cast<float>(getWidth()) - 20.0f,
+        static_cast<float>(getHeight() / 2) - 20.0f);
+
+    g.setColour(juce::Colour(28, 28, 38));
+    g.fillRoundedRectangle(playlistArea, 15.0f);
+
+    //==============================================================================
+    // Borders
+    g.setColour(juce::Colours::grey.withAlpha(0.4f));
+    g.drawRoundedRectangle(
+        playlistArea,
+        15.0f,
+        1.5f);
+
+    //==============================================================================
+    // Section Label
+    g.setColour(juce::Colours::white.withAlpha(0.9f));
+    g.setFont(18.0f);
+
+    g.drawText(
+        "TRACK PLAYLIST",
+        30,
+        getHeight() / 2 + 18,
+        250,
+        30,
+        juce::Justification::left);
 }
 
+//==============================================================================
+//==============================================================================
 void MainComponent::resized()
 {
-    // This is called when the MainContentComponent is resized.
-    
-    
-    double rowH = getHeight() / 12;
-    double colW = getWidth()/7;
-    
-    labelGUI.setBounds(0,rowH*2.8, colW, rowH*3);
-    deckGUI1.setBounds(0, 0, getWidth()/3, getHeight()/2);
-    deckGUI2.setBounds(getWidth()/3, 0, getWidth()/3, getHeight()/2);
-    deckGUI3.setBounds((getWidth()/3)*2, 0, getWidth()/3, getHeight()/2);
-    labelPlaylist.setBounds(0,rowH*6, colW, rowH*3);
-    playlistComponent.setBounds(getWidth()/6, getHeight()/2, getWidth(), getHeight()/2);
-    
-    
-   
+    auto area = getLocalBounds().reduced(10);
+
+    //==========================================================
+    // HEADER
+
+    auto headerArea = area.removeFromTop(80);
+
+    titleLabel.setBounds(
+        headerArea.removeFromTop(40));
+
+    subTitleLabel.setBounds(headerArea);
+
+    area.removeFromTop(10);
+
+    //==========================================================
+    // DECK SECTION
+    // Increased height so all controls fit properly
+
+    auto deckArea = area.removeFromTop(520);
+
+    const int spacing = 10;
+
+    auto deckWidth =
+        (deckArea.getWidth() - (spacing * 2)) / 3;
+
+    deckGUI1.setBounds(
+        deckArea.removeFromLeft(deckWidth));
+
+    deckArea.removeFromLeft(spacing);
+
+    deckGUI2.setBounds(
+        deckArea.removeFromLeft(deckWidth));
+
+    deckArea.removeFromLeft(spacing);
+
+    deckGUI3.setBounds(deckArea);
+
+    area.removeFromTop(10);
+
+    //==========================================================
+    // PLAYLIST SECTION
+
+    playlistComponent.setBounds(area);
 }

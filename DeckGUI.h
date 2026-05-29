@@ -3,7 +3,7 @@
 
     DeckGUI.h
     Created: 23 Feb 2024 11:03:24pm
-    Author:  Bright  Osahenhen Iyahen
+    Author:  Bright Osahenhen Iyahen
 
   ==============================================================================
 */
@@ -11,166 +11,189 @@
 #pragma once
 
 #include <JuceHeader.h>
-#include "PlaylistComponent.h"
+
 #include "DJAudioPlayer.h"
-
-#include "WaveFormDisplay.h"
+#include "PlaylistComponent.h"
 #include "TrackList.h"
-
-
-
-
+#include "WaveFormDisplay.h"
 
 //==============================================================================
 /*
-*/
-class DeckGUI  : public juce::Component,
-                 public juce::Button::Listener,
-                 public juce::Slider::Listener,
-                 public juce::FileDragAndDropTarget,
-                 public juce::Timer,
-                 public juce::TableListBoxModel,
-                 public juce::TextEditor::Listener
-                
-                 
-                 
-                
-                 
-              
-            
-                
-              
+    DeckGUI
 
-                
+    Professional DJ deck interface component for:
+    - Audio playback control
+    - Waveform visualisation
+    - FX control
+    - Playlist interaction
+    - Drag & drop loading
+    - Track searching
+*/
+//==============================================================================
+class DeckGUI : public juce::Component,
+                public juce::Button::Listener,
+                public juce::Slider::Listener,
+                public juce::FileDragAndDropTarget,
+                public juce::Timer,
+                public juce::TableListBoxModel,
+                public juce::TextEditor::Listener
 {
 public:
-    DeckGUI(DJAudioPlayer* _player, juce::AudioFormatManager& formatManagerToUse, juce::AudioThumbnailCache& cacheToUse,  PlaylistComponent* playlistComponent, int channelInUse);
-    
-    ~DeckGUI() override;
-/**IDraws objects on screen**/
-    void paint (juce::Graphics& g) override;
-    /**Resizes and positions object on screen**/
-    void resized() override;
-   
-  
-    
-/** Implement  Button::Listerner */
-    void buttonClicked(juce::Button*) override;
-    /** Implement  Slider::Listerner */
-    void sliderValueChanged(juce::Slider* slider) override;
-    bool isInterestedInFileDrag(const juce::StringArray& files) override;
-    void filesDropped(const juce::StringArray& files, int x, int y) override;
-    /**Implement the Timer class**/
-    void timerCallback() override;
-   
-   
-    
-    int getNumRows() override;
-      
-    void paintRowBackground(juce::Graphics&,
-           int rowNumber,
-           int width,
-           int height,
-           bool rowIsSelected) override;
-      
-   
-    void paintCell(juce::Graphics&,
-           int rowNumber,
-           int columnId,
-           int width,
-           int height,
-           bool rowIsSelected) override;
-    
-    
-    /**Gets the  tracks file ful pathl**/
-    std::string getFileFullPath(const std::string &fromFilepath);
+    //==============================================================================
+    // Constructor / Destructor
 
-    /**Loads tracks into Decks**/
-    juce::TextButton trackButton{ "LOAD TRACK" };
-    
-   
-   /**Finds the title text of the track if any */
+    DeckGUI(DJAudioPlayer* player,
+            juce::AudioFormatManager& formatManagerToUse,
+            juce::AudioThumbnailCache& cacheToUse,
+            PlaylistComponent* playlistComponent,
+            int channelInUse);
+
+    ~DeckGUI() override;
+
+    //==============================================================================
+    // Component Rendering
+
+    void paint(juce::Graphics& g) override;
+    void resized() override;
+
+    //==============================================================================
+    // Button Listener
+
+    void buttonClicked(juce::Button* button) override;
+
+    //==============================================================================
+    // Slider Listener
+
+    void sliderValueChanged(juce::Slider* slider) override;
+
+    //==============================================================================
+    // File Drag & Drop
+
+    bool isInterestedInFileDrag(
+        const juce::StringArray& files) override;
+
+    void filesDropped(const juce::StringArray& files,
+                      int x,
+                      int y) override;
+
+    //==============================================================================
+    // Timer
+
+    void timerCallback() override;
+
+    //==============================================================================
+    // TableListBoxModel
+
+    int getNumRows() override;
+
+    void paintRowBackground(juce::Graphics& g,
+                            int rowNumber,
+                            int width,
+                            int height,
+                            bool rowIsSelected) override;
+
+    void paintCell(juce::Graphics& g,
+                   int rowNumber,
+                   int columnId,
+                   int width,
+                   int height,
+                   bool rowIsSelected) override;
+
+    //==============================================================================
+    // Playlist Search
+
     void findTrackInPlaylist(juce::String text);
-    
-    /**Extracts and highlights  the tract title aqua colour as  found by  findTrackInPlaylist function**/
+
     int getTrackInPlaylist(juce::String text);
-   
-    
-    
+
+    //==============================================================================
+    // Utilities
+
+    std::string getFileFullPath(
+        const std::string& fromFilepath);
+
+    //==============================================================================
+    // Public Components
+
+    juce::TextButton trackButton{ "QUEUE" };
+
 private:
-    /**Plays tracks loaded into Deck**/
-    juce::TextButton playButton{"PLAY"};
-    
-    /**Stops tracks loaded into Deck**/
-    juce::TextButton stopButton{"STOP"};
-   /**Loads track files from the system into the Deck**/
-    juce::TextButton loadButton{"LOAD FILE"};
-    
-   
-    /**Controls the track volume**/
+    //==============================================================================
+    // Helper Methods
+
+    void configureSlider(juce::Slider& slider,
+                         double min,
+                         double max,
+                         double step);
+
+    void configureButton(juce::TextButton& button,
+                         const juce::Colour& colour);
+
+    void loadTrackToDeck(const juce::File& file);
+
+    //==============================================================================
+    // Playback Buttons
+
+    juce::TextButton playButton{ "PLAY" };
+    juce::TextButton stopButton{ "STOP" };
+    juce::TextButton loadButton{ "LOAD" };
+
+    //==============================================================================
+    // Sliders
+
     juce::Slider volSlider;
-    
-    /**Attaches text to the left of the volumeSlider**/
-    juce::Label volumeLabel;
-    
-    /**Controls the speed of the sound track**/
     juce::Slider speedSlider;
-    
-    /**Attaches text to the left of the speedSlider**/
-    juce::Label speedLabel;
-    
-    /**Forwards or backwards the track **/
     juce::Slider posSlider;
-    
-    /**Attaches text to the left of the posSlider**/
-    juce::Label forwardBackwardLabel;
-    
-    /**Sets the room sound of tracks**/
     juce::Slider roomSlider;
-    
-    /**Attaches text to the left of the roomSlider**/
-    juce::Label roomLabel;
-    
-    /**Sets the wet sound of tracks**/
     juce::Slider wetLevelSlider;
-    
-    /**Attaches text to the left of the wetLevelSlider**/
-    juce::Label wetLevelLabel;
-    
-    /**Sets the dry sound of tracks**/
     juce::Slider dryLevelSlider;
-    
-    /**Attaches text to the left of the dryLevelSlider**/
+
+    //==============================================================================
+    // Labels
+
+    juce::Label volumeLabel;
+    juce::Label speedLabel;
+    juce::Label forwardBackwardLabel;
+    juce::Label roomLabel;
+    juce::Label wetLevelLabel;
     juce::Label dryLevelLabel;
-  
-    /**Implements the selection of  a track file from the system**/
-    juce::FileChooser fChooser{"Select a file..."};
-    
-    /**Pointer to the DJAudioPlayer class to implement some of its functions**/
-    DJAudioPlayer* player;
-    
-    /**Connects to the WaveFormDisplay class to implement some of its functions**/
-    WaveFormDisplay waveFormDisplay;
-    
-    /**Points to the playlistComponent class to implement some of its functions**/
-    PlaylistComponent* playlistComponent;
-    
-    
-    
-    /**variable indicating channel associated with the GUI (0=Left, 1=Middle, 2=Right)**/
-    int inChannel;
-    
-    /**Displays text for the time when the time hasn't started**/
     juce::Label currentTimePositionLabel;
-    
-    /**Vector of type TrackList stores tracks**/
+
+    //==============================================================================
+    // File Chooser
+
+    juce::FileChooser fChooser{ "Select an audio file..." };
+
+    //==============================================================================
+    // Audio / Playlist References
+
+    DJAudioPlayer* player = nullptr;
+
+    WaveformDisplay waveFormDisplay;
+
+    PlaylistComponent* playlistComponent = nullptr;
+
+    //==============================================================================
+    // Deck Information
+
+    /*
+        Deck Channel Mapping:
+        0 = Left Deck
+        1 = Middle Deck
+        2 = Right Deck
+    */
+    int inChannel = 0;
+
+    //==============================================================================
+    // Track Management
+
     std::vector<TrackList> titledTracks;
-    
-    /**Enables text entry for searching the playlist**/
+
+    //==============================================================================
+    // Playlist Search Editor
+
     juce::TextEditor playlistEditor;
-  
-    
-    
-    
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (DeckGUI)
+
+    //==============================================================================
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(DeckGUI)
 };

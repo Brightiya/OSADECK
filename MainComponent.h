@@ -1,20 +1,16 @@
 #pragma once
 
 #include <JuceHeader.h>
+
 #include "DJAudioPlayer.h"
 #include "DeckGUI.h"
 #include "PlaylistComponent.h"
 
-
 //==============================================================================
 /*
-    This component lives inside our window, and this is where you should put all
-    your controls and content.
+    Main application component for OSADECK PRO
 */
-class MainComponent  :  public juce::AudioAppComponent
-                       
-                        
-
+class MainComponent : public juce::AudioAppComponent
 {
 public:
     //==============================================================================
@@ -22,68 +18,99 @@ public:
     ~MainComponent() override;
 
     //==============================================================================
-    void prepareToPlay (int samplesPerBlockExpected, double sampleRate) override;
-    void getNextAudioBlock (const juce::AudioSourceChannelInfo& bufferToFill) override;
+    // Audio Callbacks
+    void prepareToPlay(int samplesPerBlockExpected,
+                       double sampleRate) override;
+
+    void getNextAudioBlock(
+        const juce::AudioSourceChannelInfo& bufferToFill) override;
+
     void releaseResources() override;
 
     //==============================================================================
-    void paint (juce::Graphics& g) override;
-    
+    // GUI Callbacks
+    void paint(juce::Graphics& g) override;
     void resized() override;
-    
-  
-    
-   
-      
-    
-    
 
 private:
-    
-  
-    
-  /**Default Decks number**/
-    int leftDeck = 0;
-    int midDeck = 1;
-    int rightDeck = 2;
-   
-   
-    /**Processes the various audio formats such mp3, .wav etc**/
+    //==============================================================================
+    // Deck Channel IDs
+    enum DeckChannel
+    {
+        leftDeck  = 0,
+        middleDeck = 1,
+        rightDeck = 2
+    };
+
+    //==============================================================================
+    // Audio System
+
+    /** Handles audio file formats (.mp3, .wav, .aiff, etc.) */
     juce::AudioFormatManager formatManager;
-    
-    /**Sets the AudioThumbnailCache**/
-    juce::AudioThumbnailCache thumbCache{100};
-    
-    /**Formats the audio file in the Left Deck**/
-    DJAudioPlayer player1{formatManager};
-   
-    /**Calls the DeckGUI constructor to process audio files on the Left Deck**/
-    DeckGUI deckGUI1{&player1, formatManager, thumbCache, &playlistComponent, leftDeck};
-    
-    /**Formats the audio file in the Middle Deck**/
-    DJAudioPlayer player2{formatManager};
-   
-    
-    /**Calls the DeckGUI constructor to process audio files on the Middle Deck**/
-    DeckGUI deckGUI2{&player2, formatManager, thumbCache, &playlistComponent, midDeck};
-    
-    /**Formats the audio file in the Right Deck**/
-    DJAudioPlayer player3{formatManager};
-    
-    /**Calls the DeckGUI constructor to process audio files on the Right Deck**/
-    DeckGUI deckGUI3{&player3, formatManager, thumbCache, &playlistComponent, rightDeck};
-    
-    /**Implement mixing of the audioSource**/
+
+    /** Shared waveform thumbnail cache */
+    juce::AudioThumbnailCache waveformCache{ 200 };
+
+    /** Audio mixer for combining all deck outputs */
     juce::MixerAudioSource mixerSource;
-    
-    /**Calls the PlaylistComponent constructor for audio processing on the playlistComponent**/
-    PlaylistComponent playlistComponent{formatManager, &player1, &player2, &player3};
-    
-    /**attaches text to the playlistComponent**/
-    juce::Label labelPlaylist;
-    
-    /**attaches text to the DeckGUI component**/
-    juce::Label labelGUI;
-    
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainComponent)
+
+    //==============================================================================
+    // Audio Players
+
+    DJAudioPlayer player1{ formatManager };
+    DJAudioPlayer player2{ formatManager };
+    DJAudioPlayer player3{ formatManager };
+
+    //==============================================================================
+    // Playlist Component
+
+    PlaylistComponent playlistComponent
+    {
+        formatManager,
+        &player1,
+        &player2,
+        &player3
+    };
+
+    //==============================================================================
+    // Deck GUIs
+
+    DeckGUI deckGUI1
+    {
+        &player1,
+        formatManager,
+        waveformCache,
+        &playlistComponent,
+        leftDeck
+    };
+
+    DeckGUI deckGUI2
+    {
+        &player2,
+        formatManager,
+        waveformCache,
+        &playlistComponent,
+        middleDeck
+    };
+
+    DeckGUI deckGUI3
+    {
+        &player3,
+        formatManager,
+        waveformCache,
+        &playlistComponent,
+        rightDeck
+    };
+
+    //==============================================================================
+    // UI Labels
+
+    /** Main application title */
+    juce::Label titleLabel;
+
+    /** Subtitle / application description */
+    juce::Label subTitleLabel;
+
+    //==============================================================================
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MainComponent)
 };
