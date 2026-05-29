@@ -1,0 +1,26 @@
+# macOS
+.DS_Store
+
+# Xcode
+build/
+DerivedData/
+*.xcworkspace
+xcuserdata/
+
+# JUCE
+JuceLibraryCode/
+Builds/
+
+# CMake
+cmake-build-debug/
+CMakeFiles/
+CMakeCache.txt
+
+# VSCode
+.vscode/
+
+# Binary files
+*.app
+*.exe
+*.dylib
+*.o
