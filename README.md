@@ -16,20 +16,57 @@ Developed as a multimedia software engineering project, OSADECK demonstrates pra
 
 # Preview
 
-Add screenshots or GIF demonstrations here.
+## Main Interface
 
-Suggested previews:
+![OSADECK Main UI](assets/main-ui.png)
 
-* Main application interface
-* Waveform visualization
-* Playlist management
-* Deck playback controls
+Triple-deck DJ mixing environment with waveform visualization and playlist management.
 
-Example:
+---
 
-```markdown
-![Main Interface](screenshots/main-ui.png)
-```
+## Deck Controls
+
+![Deck Controls](assets/deck-controls.png)
+
+Each deck includes:
+
+* playback controls
+* waveform display
+* speed adjustment
+* effects controls
+* track positioning
+
+---
+
+## Playlist Queue System
+
+![Playlist Queue](assets/playlist-system.png)
+
+Queue tracks independently for each deck using the **LOAD NEXT** feature.
+
+---
+
+## Onboarding Popup
+
+![Onboarding](assets/onboarding-popup.png)
+
+Built-in onboarding helps first-time users understand the interface quickly.
+
+---
+
+## Tooltip System
+
+![Tooltip Demo](assets/tooltip-demo.png)
+
+Interactive tooltips improve usability and accessibility.
+
+---
+
+## Playlist search functionality
+
+![Playlist search](assets/search.png)
+
+Search loaded tracks in each deck.
 
 ---
 
@@ -116,7 +153,7 @@ OSADECK/
 │   └── TrackList.h
 ├── Builds/
 │   └── MacOSX/
-└── screenshots/
+└── assets/
 ```
 
 ---

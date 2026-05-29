@@ -23,6 +23,7 @@ DeckGUI::DeckGUI(DJAudioPlayer* _player,
 {
     //==============================================================================
     // Buttons
+
     addAndMakeVisible(playButton);
     addAndMakeVisible(stopButton);
     addAndMakeVisible(loadButton);
@@ -33,88 +34,184 @@ DeckGUI::DeckGUI(DJAudioPlayer* _player,
     loadButton.setButtonText("LOAD");
     trackButton.setButtonText("LOAD NEXT");
 
-    playButton.setColour(juce::TextButton::buttonColourId, juce::Colours::forestgreen);
-    stopButton.setColour(juce::TextButton::buttonColourId, juce::Colours::darkred);
-    loadButton.setColour(juce::TextButton::buttonColourId, juce::Colours::darkorange);
-    trackButton.setColour(juce::TextButton::buttonColourId, juce::Colours::darkcyan);
+    playButton.setColour(
+        juce::TextButton::buttonColourId,
+        juce::Colours::forestgreen);
+
+    stopButton.setColour(
+        juce::TextButton::buttonColourId,
+        juce::Colours::darkred);
+
+    loadButton.setColour(
+        juce::TextButton::buttonColourId,
+        juce::Colours::darkorange);
+
+    trackButton.setColour(
+        juce::TextButton::buttonColourId,
+        juce::Colours::darkcyan);
+
+    //==============================================================================
+    // Tooltips
+
+    playButton.setTooltip(
+        "Play the currently loaded track");
+
+    stopButton.setTooltip(
+        "Stop playback");
+
+    loadButton.setTooltip(
+        "Load an audio file from your computer");
+
+    trackButton.setTooltip(
+        "Load the next queued playlist track");
 
     //==============================================================================
     // Labels
+
     addAndMakeVisible(currentTimePositionLabel);
+
     addAndMakeVisible(volumeLabel);
     addAndMakeVisible(speedLabel);
     addAndMakeVisible(forwardBackwardLabel);
+
     addAndMakeVisible(roomLabel);
     addAndMakeVisible(wetLevelLabel);
     addAndMakeVisible(dryLevelLabel);
 
-    currentTimePositionLabel.setText("00:00:000", juce::dontSendNotification);
-    currentTimePositionLabel.setJustificationType(juce::Justification::centred);
+    currentTimePositionLabel.setText(
+        "00:00:000",
+        juce::dontSendNotification);
 
-    volumeLabel.setText("Volume", juce::dontSendNotification);
-    speedLabel.setText("Speed", juce::dontSendNotification);
-    forwardBackwardLabel.setText("Position", juce::dontSendNotification);
-    roomLabel.setText("Room", juce::dontSendNotification);
-    wetLevelLabel.setText("Wet", juce::dontSendNotification);
-    dryLevelLabel.setText("Dry", juce::dontSendNotification);
+    currentTimePositionLabel.setJustificationType(
+        juce::Justification::centred);
+
+    volumeLabel.setText(
+        "Volume",
+        juce::dontSendNotification);
+
+    speedLabel.setText(
+        "Speed",
+        juce::dontSendNotification);
+
+    forwardBackwardLabel.setText(
+        "Position",
+        juce::dontSendNotification);
+
+    roomLabel.setText(
+        "Room",
+        juce::dontSendNotification);
+
+    wetLevelLabel.setText(
+        "Wet",
+        juce::dontSendNotification);
+
+    dryLevelLabel.setText(
+        "Dry",
+        juce::dontSendNotification);
 
     //==============================================================================
     // Waveform
+
     addAndMakeVisible(waveFormDisplay);
 
     //==============================================================================
-    // Playlist search
+    // Playlist Search
+
     addAndMakeVisible(playlistEditor);
 
     playlistEditor.setTextToShowWhenEmpty(
         "Search loaded tracks and press ENTER...",
         juce::Colours::grey);
 
+    playlistEditor.setTooltip(
+        "Search for tracks in the playlist");
+
     playlistEditor.onReturnKey = [this]
     {
-        findTrackInPlaylist(playlistEditor.getText());
+        findTrackInPlaylist(
+            playlistEditor.getText());
     };
 
     //==============================================================================
     // Sliders
+
     addAndMakeVisible(volSlider);
     addAndMakeVisible(speedSlider);
     addAndMakeVisible(posSlider);
+
     addAndMakeVisible(roomSlider);
     addAndMakeVisible(wetLevelSlider);
     addAndMakeVisible(dryLevelSlider);
 
-    auto configureSlider = [](juce::Slider& slider,
-                              double min,
-                              double max,
-                              double step)
+    auto configureSlider =
+        [](juce::Slider& slider,
+           double min,
+           double max,
+           double step)
     {
-        slider.setSliderStyle(juce::Slider::RotaryHorizontalVerticalDrag);
-        slider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 60, 20);
+        slider.setSliderStyle(
+            juce::Slider::RotaryHorizontalVerticalDrag);
+
+        slider.setTextBoxStyle(
+            juce::Slider::TextBoxBelow,
+            false,
+            60,
+            20);
+
         slider.setRange(min, max, step);
-        slider.setColour(juce::Slider::rotarySliderFillColourId,
-                         juce::Colours::deepskyblue);
-        slider.setColour(juce::Slider::thumbColourId,
-                         juce::Colours::white);
+
+        slider.setColour(
+            juce::Slider::rotarySliderFillColourId,
+            juce::Colours::deepskyblue);
+
+        slider.setColour(
+            juce::Slider::thumbColourId,
+            juce::Colours::white);
     };
 
     configureSlider(volSlider, 0.0, 1.0, 0.01);
     configureSlider(speedSlider, 0.1, 5.0, 0.01);
     configureSlider(posSlider, 0.0, 1.0, 0.001);
+
     configureSlider(roomSlider, 0.0, 1.0, 0.01);
     configureSlider(wetLevelSlider, 0.0, 1.0, 0.01);
     configureSlider(dryLevelSlider, 0.0, 1.0, 0.01);
 
-    // Default values
+    //==============================================================================
+    // Slider Tooltips
+
+    volSlider.setTooltip(
+        "Adjust deck volume");
+
+    speedSlider.setTooltip(
+        "Adjust playback speed");
+
+    posSlider.setTooltip(
+        "Seek track position");
+
+    roomSlider.setTooltip(
+        "Adjust reverb room size");
+
+    wetLevelSlider.setTooltip(
+        "Adjust wet reverb signal");
+
+    dryLevelSlider.setTooltip(
+        "Adjust dry signal");
+
+    //==============================================================================
+    // Default Values
+
     volSlider.setValue(0.8);
     speedSlider.setValue(1.0);
     posSlider.setValue(0.0);
+
     roomSlider.setValue(0.5);
     wetLevelSlider.setValue(0.3);
     dryLevelSlider.setValue(0.7);
 
     //==============================================================================
     // Listeners
+
     playButton.addListener(this);
     stopButton.addListener(this);
     loadButton.addListener(this);
@@ -123,6 +220,7 @@ DeckGUI::DeckGUI(DJAudioPlayer* _player,
     volSlider.addListener(this);
     speedSlider.addListener(this);
     posSlider.addListener(this);
+
     roomSlider.addListener(this);
     wetLevelSlider.addListener(this);
     dryLevelSlider.addListener(this);
@@ -131,10 +229,12 @@ DeckGUI::DeckGUI(DJAudioPlayer* _player,
 
     //==============================================================================
     // Drag & Drop
+
     setInterceptsMouseClicks(true, true);
 
     //==============================================================================
     // Timer
+
     startTimerHz(30);
 }
 
@@ -149,7 +249,9 @@ void DeckGUI::paint(juce::Graphics& g)
 {
     auto bounds = getLocalBounds().toFloat();
 
-    // Background gradient
+    //==============================================================================
+    // Background Gradient
+
     juce::ColourGradient gradient(
         juce::Colour(20, 20, 30),
         0.0f,
@@ -162,13 +264,26 @@ void DeckGUI::paint(juce::Graphics& g)
     g.setGradientFill(gradient);
     g.fillAll();
 
-    // Outer border
-    g.setColour(juce::Colours::grey.withAlpha(0.5f));
-    g.drawRoundedRectangle(bounds.reduced(4.0f), 12.0f, 2.0f);
+    //==============================================================================
+    // Outer Border
 
+    g.setColour(
+        juce::Colours::grey.withAlpha(0.5f));
+
+    g.drawRoundedRectangle(
+        bounds.reduced(4.0f),
+        12.0f,
+        2.0f);
+
+    //==============================================================================
     // Header
+
     g.setColour(juce::Colours::white);
-    g.setFont(juce::FontOptions(20.0f, juce::Font::bold));
+
+    g.setFont(
+        juce::FontOptions(
+            20.0f,
+            juce::Font::bold));
 
     juce::String deckName;
 
@@ -179,16 +294,25 @@ void DeckGUI::paint(juce::Graphics& g)
     else
         deckName = "RIGHT DECK";
 
-    g.drawText(deckName,
-               15,
-               10,
-               getWidth() - 30,
-               30,
-               juce::Justification::centredLeft);
+    g.drawText(
+        deckName,
+        15,
+        10,
+        getWidth() - 30,
+        30,
+        juce::Justification::centredLeft);
 
-    // Divider line
+    //==============================================================================
+    // Divider Line
+
     g.setColour(juce::Colours::darkgrey);
-    g.drawLine(10.0f, 45.0f, (float)getWidth() - 10.0f, 45.0f, 1.0f);
+
+    g.drawLine(
+        10.0f,
+        45.0f,
+        (float)getWidth() - 10.0f,
+        45.0f,
+        1.0f);
 }
 
 //==============================================================================
@@ -203,13 +327,22 @@ void DeckGUI::resized()
     area.removeFromTop(45);
 
     //==========================================================
+    // Search Box (MOVE IT TO TOP)
+
+    playlistEditor.setBounds(
+        area.removeFromTop(34));
+
+    area.removeFromTop(10);
+
+    //==========================================================
     // Waveform
 
-    auto waveformArea = area.removeFromTop(120);
+    auto waveformArea =
+        area.removeFromTop(110);
 
     waveFormDisplay.setBounds(waveformArea);
 
-    area.removeFromTop(8);
+    area.removeFromTop(10);
 
     //==========================================================
     // Time Label
@@ -220,9 +353,10 @@ void DeckGUI::resized()
     area.removeFromTop(10);
 
     //==========================================================
-    // FIRST SLIDER ROW
+    // First Slider Row
 
-    auto sliderRow1 = area.removeFromTop(120);
+    auto sliderRow1 =
+        area.removeFromTop(115);
 
     auto sliderWidth1 =
         sliderRow1.getWidth() / 3;
@@ -237,9 +371,10 @@ void DeckGUI::resized()
         sliderRow1.reduced(8));
 
     //==========================================================
-    // SECOND SLIDER ROW
+    // Second Slider Row
 
-    auto sliderRow2 = area.removeFromTop(120);
+    auto sliderRow2 =
+        area.removeFromTop(115);
 
     auto sliderWidth2 =
         sliderRow2.getWidth() / 3;
@@ -256,9 +391,10 @@ void DeckGUI::resized()
     area.removeFromTop(10);
 
     //==========================================================
-    // BUTTON ROW
+    // Button Row
 
-    auto buttonRow = area.removeFromTop(45);
+    auto buttonRow =
+        area.removeFromTop(45);
 
     auto buttonWidth =
         buttonRow.getWidth() / 4;
@@ -274,14 +410,6 @@ void DeckGUI::resized()
 
     trackButton.setBounds(
         buttonRow.reduced(4));
-
-    area.removeFromTop(8);
-
-    //==========================================================
-    // SEARCH BOX
-
-    playlistEditor.setBounds(
-        area.removeFromTop(32));
 }
 
 //==============================================================================
@@ -289,6 +417,7 @@ void DeckGUI::buttonClicked(juce::Button* button)
 {
     //==============================================================================
     // PLAY
+
     if (button == &playButton)
     {
         player->start();
@@ -297,6 +426,7 @@ void DeckGUI::buttonClicked(juce::Button* button)
 
     //==============================================================================
     // STOP
+
     if (button == &stopButton)
     {
         player->stop();
@@ -305,6 +435,7 @@ void DeckGUI::buttonClicked(juce::Button* button)
 
     //==============================================================================
     // LOAD
+
     if (button == &loadButton)
     {
         auto fileChooserFlags =
@@ -329,7 +460,8 @@ void DeckGUI::buttonClicked(juce::Button* button)
     }
 
     //==============================================================================
-    // QUEUE / LOAD TRACK FROM PLAYLIST
+    // LOAD NEXT
+
     if (button == &trackButton)
     {
         std::vector<std::string>* selectedStore = nullptr;
@@ -352,6 +484,20 @@ void DeckGUI::buttonClicked(juce::Button* button)
             titledTracks.push_back(TrackList{ audioFile });
 
             selectedStore->erase(selectedStore->begin());
+
+            juce::AlertWindow::showMessageBoxAsync(
+                juce::AlertWindow::InfoIcon,
+                "Track Loaded",
+                "Next playlist track loaded successfully.",
+                "OK");
+        }
+        else
+        {
+            juce::AlertWindow::showMessageBoxAsync(
+                juce::AlertWindow::WarningIcon,
+                "Playlist Empty",
+                "No queued track available for this deck.",
+                "OK");
         }
 
         return;
@@ -415,15 +561,17 @@ void DeckGUI::filesDropped(const juce::StringArray& files,
 //==============================================================================
 void DeckGUI::timerCallback()
 {
-    auto relativePosition = player->getPositionRelativeCallback();
+    auto relativePosition =
+        player->getPositionRelativeCallback();
 
     waveFormDisplay.setPositionRelative(relativePosition);
 
-    // Prevent invalid values
     if (relativePosition <= 0.0)
     {
-        currentTimePositionLabel.setText("00:00:000",
-                                         juce::dontSendNotification);
+        currentTimePositionLabel.setText(
+            "00:00:000",
+            juce::dontSendNotification);
+
         return;
     }
 
@@ -439,13 +587,15 @@ void DeckGUI::timerCallback()
         ((int)relativeTime.inMilliseconds()) % 1000;
 
     auto timeText =
-        juce::String::formatted("%02d:%02d:%03d",
-                                minutes,
-                                seconds,
-                                milliseconds);
+        juce::String::formatted(
+            "%02d:%02d:%03d",
+            minutes,
+            seconds,
+            milliseconds);
 
-    currentTimePositionLabel.setText(timeText,
-                                     juce::dontSendNotification);
+    currentTimePositionLabel.setText(
+        timeText,
+        juce::dontSendNotification);
 }
 
 //==============================================================================
@@ -474,7 +624,8 @@ void DeckGUI::paintCell(juce::Graphics&,
 }
 
 //==============================================================================
-std::string DeckGUI::getFileFullPath(const std::string& fromFilepath)
+std::string DeckGUI::getFileFullPath(
+    const std::string& fromFilepath)
 {
     juce::File audioFile(fromFilepath);
 
@@ -488,16 +639,21 @@ void DeckGUI::findTrackInPlaylist(juce::String text)
 {
     if (text.isNotEmpty())
     {
-        int rowNumber = getTrackInPlaylist(text);
+        int rowNumber =
+            getTrackInPlaylist(text);
 
         if (rowNumber >= 0)
         {
-            playlistComponent->tableComponent.selectRow(rowNumber);
+            playlistComponent
+                ->tableComponent
+                .selectRow(rowNumber);
         }
     }
     else
     {
-        playlistComponent->tableComponent.deselectAllRows();
+        playlistComponent
+            ->tableComponent
+            .deselectAllRows();
     }
 }
 
@@ -510,13 +666,16 @@ int DeckGUI::getTrackInPlaylist(juce::String text)
             titledTracks.end(),
             [&text](const TrackList& list)
             {
-                return list.trackTitle.containsIgnoreCase(text);
+                return list.trackTitle
+                    .containsIgnoreCase(text);
             });
 
     if (findIndex != titledTracks.end())
     {
         return static_cast<int>(
-            std::distance(titledTracks.begin(), findIndex));
+            std::distance(
+                titledTracks.begin(),
+                findIndex));
     }
 
     juce::AlertWindow::showMessageBoxAsync(

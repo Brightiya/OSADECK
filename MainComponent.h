@@ -19,6 +19,7 @@ public:
 
     //==============================================================================
     // Audio Callbacks
+
     void prepareToPlay(int samplesPerBlockExpected,
                        double sampleRate) override;
 
@@ -29,29 +30,31 @@ public:
 
     //==============================================================================
     // GUI Callbacks
+
     void paint(juce::Graphics& g) override;
     void resized() override;
 
 private:
     //==============================================================================
     // Deck Channel IDs
+
     enum DeckChannel
     {
-        leftDeck  = 0,
+        leftDeck   = 0,
         middleDeck = 1,
-        rightDeck = 2
+        rightDeck  = 2
     };
 
     //==============================================================================
     // Audio System
 
-    /** Handles audio file formats (.mp3, .wav, .aiff, etc.) */
+    /** Handles supported audio formats (.mp3, .wav, .aiff, etc.) */
     juce::AudioFormatManager formatManager;
 
     /** Shared waveform thumbnail cache */
     juce::AudioThumbnailCache waveformCache{ 200 };
 
-    /** Audio mixer for combining all deck outputs */
+    /** Mixer used to combine all deck audio outputs */
     juce::MixerAudioSource mixerSource;
 
     //==============================================================================
@@ -103,13 +106,19 @@ private:
     };
 
     //==============================================================================
-    // UI Labels
+    // UI Components
 
     /** Main application title */
     juce::Label titleLabel;
 
     /** Subtitle / application description */
     juce::Label subTitleLabel;
+
+    //==============================================================================
+    // Tooltip Manager
+
+    /** Enables all component tooltips application-wide */
+    juce::TooltipWindow tooltipWindow{ this, 500 };
 
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MainComponent)
