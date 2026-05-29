@@ -62,11 +62,18 @@ Interactive tooltips improve usability and accessibility.
 
 ---
 
-## Playlist search functionality
+## 🔍 Playlist Search Functionality
+
+### Features
+
+* Instant playlist searching
+* Case-insensitive matching
+* Automatic playlist row selection
+* Fast track navigation during live mixing
 
 ![Playlist search](assets/search.png)
 
-Search loaded tracks in each deck.
+Search for tracks directly from any deck using the integrated playlist search box.
 
 ---
 
