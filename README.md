@@ -18,7 +18,7 @@ Developed as a multimedia software engineering project, OSADECK demonstrates pra
 
 ## Main Interface
 
-![OSADECK Main UI](assets/main-ui.png)
+![OSADECK application window showing three deck panels with waveform displays playlist panel and playback controls in a DJ mixing interface](assets/main-ui.png)
 
 Triple-deck DJ mixing environment with waveform visualization and playlist management.
 
@@ -26,7 +26,7 @@ Triple-deck DJ mixing environment with waveform visualization and playlist manag
 
 ## Deck Controls
 
-![Deck Controls](assets/deck-controls.png)
+![Three deck control panels with transport buttons sliders playback speed and effects knobs in a digital DJ interface](assets/deck-controls.png)
 
 Each deck includes:
 
@@ -40,7 +40,7 @@ Each deck includes:
 
 ## Playlist Queue System
 
-![Playlist Queue](assets/playlist-system.png)
+![Playlist queue panel showing track list rows with load next button and deck assignment options for independent deck queue management](assets/playlist-system.png)
 
 Queue tracks independently for each deck using the **LOAD NEXT** feature.
 
@@ -48,7 +48,7 @@ Queue tracks independently for each deck using the **LOAD NEXT** feature.
 
 ## Onboarding Popup
 
-![Onboarding](assets/onboarding-popup.png)
+![Onboarding popup overlay with welcome guidance text displayed over the DJ interface to support first time users](assets/onboarding-popup.png)
 
 Built-in onboarding helps first-time users understand the interface quickly.
 
@@ -56,7 +56,7 @@ Built-in onboarding helps first-time users understand the interface quickly.
 
 ## Tooltip System
 
-![Tooltip Demo](assets/tooltip-demo.png)
+![Tooltip demonstration showing a helper box over a control element in the interface to improve usability](assets/tooltip-demo.png)
 
 Interactive tooltips improve usability and accessibility.
 
@@ -71,7 +71,7 @@ Interactive tooltips improve usability and accessibility.
 * Automatic playlist row selection
 * Fast track navigation during live mixing
 
-![Playlist search](assets/search.png)
+![Playlist search bar with typed query and filtered track results displayed in the deck playlist area for quick track navigation](assets/search.png)
 
 Search for tracks directly from any deck using the integrated playlist search box.
 
